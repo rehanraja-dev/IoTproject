@@ -5,6 +5,54 @@ function getPredictionsDir(req) {
   return req.app.get('dbDir') || path.join(__dirname, '..', 'db');
 }
 
+function toForecastNumber(value) {
+  if (Array.isArray(value)) {
+    return toForecastNumber(value[0]);
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function extractForecastValue(predictions, keys) {
+  if (!predictions || typeof predictions !== 'object') {
+    return null;
+  }
+
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(predictions, key)) {
+      const direct = toForecastNumber(predictions[key]);
+      if (direct !== null) {
+        return direct;
+      }
+    }
+  }
+
+  return null;
+}
+
+function normalizeDeviceForecast(record) {
+  const predictions = record?.predictions || {};
+
+  return {
+    timestamp: record?.timestamp || null,
+    dataUsed: record?.dataUsed ?? 0,
+    raw: predictions,
+    forecastTemperature: extractForecastValue(predictions, [
+      'forecastTemperature',
+      'predictedTemperature',
+      'predicted_temperature',
+      'temperature',
+    ]),
+    forecastHumidity: extractForecastValue(predictions, [
+      'forecastHumidity',
+      'predictedHumidity',
+      'predicted_humidity',
+      'humidity',
+    ]),
+  };
+}
+
 async function trainPredictionModel(req, res) {
   try {
     const dbDir = getPredictionsDir(req);
@@ -70,7 +118,34 @@ async function getForecast(req, res) {
   }
 }
 
+async function getDeviceForecast(req, res) {
+  try {
+    const dbDir = getPredictionsDir(req);
+    const predictions = await getPredictions(dbDir);
+
+    if (!predictions) {
+      return res.json({
+        success: true,
+        data: null,
+        message: 'No predictions available. Generate predictions from the dashboard first.',
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: normalizeDeviceForecast(predictions),
+    });
+  } catch (error) {
+    console.error('Device forecast error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve device forecast',
+    });
+  }
+}
+
 module.exports = {
   trainPredictionModel,
   getForecast,
+  getDeviceForecast,
 };

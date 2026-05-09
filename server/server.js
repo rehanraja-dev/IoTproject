@@ -11,6 +11,7 @@ const alertRoutes = require('./routes/alertRoutes');
 const sensorRoutes = require('./routes/sensorRoutes');
 const lcdRoutes = require('./routes/lcdRoutes');
 const predictionRoutes = require('./routes/predictionRoutes');
+const deviceRoutes = require('./routes/deviceRoutes');
 const { attachUser, requireAuth } = require('./middleware/authMiddleware');
 const { ensureFile } = require('./utils/fileHandler');
 
@@ -45,6 +46,7 @@ function createApp() {
   app.use('/api/lcd', lcdRoutes);
   app.use('/api/predictions', predictionRoutes);
   app.use('/api/prediction', predictionRoutes);
+  app.use('/api/device', deviceRoutes);
 
   app.get('/', (req, res) => {
     if (req.session?.user) {

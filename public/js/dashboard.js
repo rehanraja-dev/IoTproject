@@ -12,6 +12,9 @@ const currentUser = document.getElementById('currentUser');
 const thresholdForm = document.getElementById('thresholdForm');
 const thresholdMessage = document.getElementById('thresholdMessage');
 const alertsList = document.getElementById('alertsList');
+const trainBtn = document.getElementById('trainBtn');
+const predictionMessage = document.getElementById('predictionMessage');
+const predictionsList = document.getElementById('predictionsList');
 const socketStatus = document.createElement('p');
 
 socketStatus.className = 'mt-2 text-xs text-slate-400';
@@ -214,9 +217,80 @@ async function logout() {
   }
 }
 
+async function trainPredictions() {
+  try {
+    trainBtn.disabled = true;
+    predictionMessage.textContent = 'Generating predictions...';
+    predictionsList.innerHTML = '';
+
+    const response = await fetch('/api/predictions/train', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const result = await response.json();
+    
+    if (!response.ok) {
+      predictionMessage.textContent = `Error: ${result.message || 'Failed to generate predictions'}`;
+      return;
+    }
+
+    predictionMessage.textContent = result.message || 'Predictions generated successfully!';
+    await loadPredictions();
+  } catch (error) {
+    predictionMessage.textContent = 'Network error. Please try again.';
+  } finally {
+    trainBtn.disabled = false;
+  }
+}
+
+async function loadPredictions() {
+  try {
+    const response = await fetch('/api/predictions/forecast');
+    const result = await response.json();
+
+    if (!result.data) {
+      predictionsList.innerHTML = '<div class="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600">No predictions available. Generate predictions first.</div>';
+      return;
+    }
+
+    const pred = result.data;
+    const predictions = pred.predictions || pred.rawResponse || {};
+
+    let html = `
+      <div class="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-4">
+        <p class="text-sm font-semibold text-blue-700">Generated: ${formatTime(pred.timestamp)}</p>
+        <p class="mt-1 text-xs text-slate-600">Data points used: ${pred.dataUsed}</p>
+    `;
+
+    if (predictions.predicted_temperatures) {
+      html += `
+        <div class="mt-3 grid gap-2 md:grid-cols-2">
+          <div>
+            <p class="text-xs text-slate-600">Next Hour Temp (avg): <span class="font-bold text-slate-900">${predictions.predicted_temperatures[0]?.toFixed(1) || '--'}°C</span></p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-600">Next Hour Humidity (avg): <span class="font-bold text-slate-900">${predictions.predicted_humidity?.[0]?.toFixed(1) || '--'}%</span></p>
+          </div>
+        </div>
+      `;
+    } else if (typeof predictions === 'object') {
+      html += `
+        <pre class="mt-2 overflow-auto rounded bg-slate-50 p-2 text-xs text-slate-700">${JSON.stringify(predictions, null, 2)}</pre>
+      `;
+    }
+
+    html += `</div>`;
+    predictionsList.innerHTML = html;
+  } catch (error) {
+    predictionsList.innerHTML = '<div class="rounded-2xl border border-rose-400/20 bg-rose-500/10 p-4 text-sm text-rose-200">Unable to load predictions.</div>';
+  }
+}
+
 refreshBtn.addEventListener('click', async () => {
-  await Promise.all([loadLatest(), loadHistory(), loadAlerts()]);
+  await Promise.all([loadLatest(), loadHistory(), loadAlerts(), loadPredictions()]);
 });
+trainBtn.addEventListener('click', trainPredictions);
 lcdForm.addEventListener('submit', sendLcdMessage);
 thresholdForm.addEventListener('submit', saveThresholds);
 logoutBtn.addEventListener('click', logout);
@@ -250,6 +324,7 @@ loadLatest();
 loadHistory();
 loadThresholds();
 loadAlerts();
+loadPredictions();
 
 setInterval(loadLatest, 5000);
 setInterval(loadHistory, 10000);

@@ -8,6 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 const alertRoutes = require('./routes/alertRoutes');
 const sensorRoutes = require('./routes/sensorRoutes');
 const lcdRoutes = require('./routes/lcdRoutes');
+const predictionRoutes = require('./routes/predictionRoutes');
 const { attachUser, requireAuth } = require('./middleware/authMiddleware');
 const { ensureFile } = require('./utils/fileHandler');
 
@@ -40,6 +41,7 @@ function createApp() {
   app.use('/api/alerts', alertRoutes);
   app.use('/api/sensor', sensorRoutes);
   app.use('/api/lcd', lcdRoutes);
+  app.use('/api/predictions', predictionRoutes);
 
   app.get('/', (req, res) => {
     if (req.session?.user) {
@@ -88,6 +90,7 @@ function createApp() {
       humidityLow: 30,
     });
     await ensureFile(path.join(dbDir, 'alerts.json'), []);
+    await ensureFile(path.join(dbDir, 'predictions.json'), []);
   }
 
   return {

@@ -42,6 +42,7 @@ function createApp() {
   app.use('/api/sensor', sensorRoutes);
   app.use('/api/lcd', lcdRoutes);
   app.use('/api/predictions', predictionRoutes);
+  app.use('/api/prediction', predictionRoutes);
 
   app.get('/', (req, res) => {
     if (req.session?.user) {

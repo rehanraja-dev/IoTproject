@@ -18,4 +18,11 @@ router.post('/train', requireAuth, trainPredictionModel);
  */
 router.get('/forecast', requireAuth, getForecast);
 
+/**
+ * GET /api/predictions/latest
+ * Alias for the latest prediction record
+ * Protected - requires authentication
+ */
+router.get('/latest', requireAuth, getForecast);
+
 module.exports = router;

@@ -1,7 +1,13 @@
 const fs = require('fs/promises');
 const path = require('path');
+const { ensureMongoSeed, isMongoEnabled, readMongoJson, writeMongoJson } = require('./mongoStore');
 
 async function ensureFile(filePath, defaultValue) {
+  if (isMongoEnabled()) {
+    await ensureMongoSeed(filePath, defaultValue);
+    return;
+  }
+
   try {
     await fs.access(filePath);
   } catch {
@@ -11,6 +17,10 @@ async function ensureFile(filePath, defaultValue) {
 }
 
 async function readJson(filePath, defaultValue) {
+  if (isMongoEnabled()) {
+    return readMongoJson(filePath, defaultValue);
+  }
+
   await ensureFile(filePath, defaultValue);
 
   try {
@@ -25,6 +35,11 @@ async function readJson(filePath, defaultValue) {
 }
 
 async function writeJson(filePath, data) {
+  if (isMongoEnabled()) {
+    await writeMongoJson(filePath, data);
+    return;
+  }
+
   const tempPath = `${filePath}.tmp`;
   await fs.writeFile(tempPath, JSON.stringify(data, null, 2));
   await fs.rename(tempPath, filePath);

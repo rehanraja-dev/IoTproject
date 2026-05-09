@@ -1,0 +1,90 @@
+:root {
+  --bg-start: #f8fafc;
+  --bg-end: #eef2f7;
+  --card: rgba(255, 255, 255, 0.92);
+  --border: rgba(148, 163, 184, 0.18);
+  --accent: #2563eb;
+  --accent-2: #0f766e;
+  --text: #0f172a;
+  --muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+}
+
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(6px);
+}
+
+.input-field {
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: #ffffff;
+  color: var(--text);
+  padding: 0.9rem 1rem;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--text);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out both;
+}
+
+.app-heading {
+  color: var(--text);
+}
+
+.app-muted {
+  color: var(--muted);
+}
+
+.app-label {
+  color: #334155;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

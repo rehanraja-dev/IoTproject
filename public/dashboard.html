@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IoT Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="min-h-screen px-4 py-6 md:px-8">
+  <main class="mx-auto max-w-7xl space-y-6">
+    <nav class="glass-card rounded-2xl px-5 py-4 md:px-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between fade-in">
+      <div>
+        <p class="text-xs uppercase tracking-[0.35em] text-blue-700">IoT Dashboard</p>
+        <h1 class="text-2xl font-bold text-slate-900">Temperature, humidity and LCD control</h1>
+      </div>
+      <div class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600">
+          Logged in as <span id="currentUser" class="font-semibold text-slate-900">Guest</span>
+        </div>
+        <button id="logoutBtn" class="btn-secondary rounded-xl px-4 py-2 transition hover:bg-slate-50" type="button">Logout</button>
+      </div>
+    </nav>
+
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <article class="glass-card rounded-2xl p-6 fade-in">
+        <p class="text-sm text-slate-600">Temperature</p>
+        <div class="mt-3 flex items-end gap-2">
+          <span id="temperatureValue" class="text-4xl font-bold text-slate-900">--</span>
+          <span class="pb-1 text-lg text-blue-700">°C</span>
+        </div>
+      </article>
+
+      <article class="glass-card rounded-2xl p-6 fade-in">
+        <p class="text-sm text-slate-600">Humidity</p>
+        <div class="mt-3 flex items-end gap-2">
+          <span id="humidityValue" class="text-4xl font-bold text-slate-900">--</span>
+          <span class="pb-1 text-lg text-teal-700">%</span>
+        </div>
+      </article>
+
+      <article class="glass-card rounded-2xl p-6 fade-in">
+        <p class="text-sm text-slate-600">Device Status</p>
+        <div class="mt-3 flex items-center gap-3">
+          <span id="statusDot" class="h-4 w-4 rounded-full bg-slate-400"></span>
+          <span id="deviceStatus" class="text-2xl font-bold text-slate-900">offline</span>
+        </div>
+        <p id="lastUpdated" class="mt-3 text-sm text-slate-600">Last updated: --</p>
+      </article>
+
+      <article class="glass-card rounded-2xl p-6 fade-in">
+        <p class="text-sm text-slate-600">Live Refresh</p>
+        <div class="mt-3 text-2xl font-bold text-slate-900">5 sec</div>
+        <p class="mt-3 text-sm text-slate-600">The dashboard polls the backend automatically.</p>
+      </article>
+    </section>
+
+    <section class="glass-card rounded-2xl p-6 fade-in">
+      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Safety Thresholds</h2>
+          <p class="mt-2 text-sm text-slate-600">Set warning limits so the server can flag unsafe readings automatically.</p>
+        </div>
+        <p id="thresholdMessage" class="text-sm text-blue-700"></p>
+      </div>
+
+      <form id="thresholdForm" class="mt-5 grid gap-4 md:grid-cols-4">
+        <div>
+          <label class="mb-2 block text-sm text-slate-700" for="temperatureHigh">Temp High (°C)</label>
+          <input class="input-field" id="temperatureHigh" name="temperatureHigh" type="number" step="0.1" min="0" placeholder="35" />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm text-slate-700" for="temperatureLow">Temp Low (°C)</label>
+          <input class="input-field" id="temperatureLow" name="temperatureLow" type="number" step="0.1" min="0" placeholder="15" />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm text-slate-700" for="humidityHigh">Humidity High (%)</label>
+          <input class="input-field" id="humidityHigh" name="humidityHigh" type="number" step="0.1" min="0" placeholder="80" />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm text-slate-700" for="humidityLow">Humidity Low (%)</label>
+          <input class="input-field" id="humidityLow" name="humidityLow" type="number" step="0.1" min="0" placeholder="30" />
+        </div>
+        <div class="md:col-span-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <button class="btn-primary rounded-xl px-4 py-3 transition hover:opacity-95" type="submit">Save Thresholds</button>
+          <p class="text-sm text-slate-600">Leave a field blank to keep the current value.</p>
+        </div>
+      </form>
+    </section>
+
+    <section class="glass-card rounded-2xl p-6 fade-in">
+      <h2 class="text-xl font-bold text-slate-900">Alerts</h2>
+      <p class="mt-2 text-sm text-slate-600">Recent threshold warnings appear here.</p>
+      <div id="alertsList" class="mt-5 space-y-3"></div>
+    </section>
+
+    <section class="grid gap-6 lg:grid-cols-3">
+      <article class="glass-card rounded-2xl p-6 lg:col-span-1 fade-in">
+        <h2 class="text-xl font-bold text-slate-900">LCD Remote Control</h2>
+        <p class="mt-2 text-sm text-slate-600">Send a short message to the 16x2 I2C LCD on the ESP8266.</p>
+        <form id="lcdForm" class="mt-5 space-y-4">
+          <div>
+            <label class="mb-2 block text-sm text-slate-700" for="message">Message</label>
+            <input class="input-field" id="message" name="message" maxlength="32" placeholder="HELLO" required />
+          </div>
+          <button class="btn-primary w-full rounded-xl px-4 py-3 transition hover:opacity-95" type="submit">Send to LCD</button>
+          <p id="lcdMessage" class="min-h-[1.5rem] text-sm text-blue-700"></p>
+        </form>
+      </article>
+
+      <article class="glass-card rounded-2xl p-6 lg:col-span-2 fade-in">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Sensor History</h2>
+            <p class="mt-2 text-sm text-slate-600">Stored in JSON with timestamps for each reading.</p>
+          </div>
+          <button id="refreshBtn" class="btn-secondary rounded-xl px-4 py-2 text-sm transition hover:bg-slate-50" type="button">Refresh</button>
+        </div>
+
+        <div class="table-wrap mt-5 rounded-2xl border border-slate-200">
+          <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+            <thead class="bg-slate-50 text-slate-700">
+              <tr>
+                <th class="px-4 py-3">Time</th>
+                <th class="px-4 py-3">Temperature</th>
+                <th class="px-4 py-3">Humidity</th>
+              </tr>
+            </thead>
+            <tbody id="historyTable" class="divide-y divide-slate-200 text-slate-700"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

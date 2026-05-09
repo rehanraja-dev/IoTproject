@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IoT Dashboard Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="min-h-screen flex items-center justify-center px-4 py-10">
+  <main class="w-full max-w-md glass-card rounded-2xl p-8 md:p-10 fade-in">
+    <div class="mb-8 text-center">
+      <p class="text-sm uppercase tracking-[0.35em] text-blue-700">IoT Dashboard</p>
+      <h1 class="mt-3 text-3xl font-bold text-slate-900">Login</h1>
+      <p class="mt-2 text-slate-600">Sign in to monitor your ESP8266 device and control the LCD remotely.</p>
+    </div>
+
+    <form id="loginForm" class="space-y-4">
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700" for="username">Username</label>
+        <input class="input-field" id="username" name="username" type="text" placeholder="Enter your username" required />
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700" for="password">Password</label>
+        <input class="input-field" id="password" name="password" type="password" placeholder="Enter your password" required />
+      </div>
+
+      <button class="btn-primary w-full rounded-xl px-4 py-3 transition hover:opacity-95" type="submit">Login</button>
+      <p id="message" class="min-h-[1.5rem] text-sm text-blue-700"></p>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-slate-600">
+      New here? <a class="text-blue-700 hover:text-blue-800" href="/register">Create an account</a>
+    </p>
+  </main>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

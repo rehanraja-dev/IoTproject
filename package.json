@@ -1,0 +1,25 @@
+{
+  "name": "iot-dashboard",
+  "version": "1.0.0",
+  "description": "Beginner-friendly IoT temperature and humidity dashboard with LCD remote control",
+  "main": "server/server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "supertest": "^7.1.4"
+  }
+}
